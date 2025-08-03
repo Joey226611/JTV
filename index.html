@@ -16,6 +16,7 @@
     body {
       background-color: #0d0d0d;
       color: #ffffff;
+      scroll-behavior: smooth;
     }
 
     header {
@@ -149,79 +150,34 @@
 
   <script>
     const translations = {
-      en: {
-        about: "About Me",
-        videos: "Videos",
-        links: "Links",
-        aboutHeader: "About Me",
-        aboutText: "Yo! I’m Joey from JoeyTV Vlogs. I make awesome videos, livestreams and more! On this website you can find everything to follow my content.",
-        videosHeader: "My Videos",
-        linksHeader: "Social Links"
-      },
-      nl: {
-        about: "Over Mij",
-        videos: "Video's",
-        links: "Links",
-        aboutHeader: "Over Mij",
-        aboutText: "Yo! Ik ben Joey van JoeyTV Vlogs. Ik maak vette video's, streams en nog veel meer! Hier op mijn website vind je alles wat je nodig hebt om mee te doen met mijn content.",
-        videosHeader: "Mijn Video's",
-        linksHeader: "Sociale Links"
-      },
-      de: {
-        about: "Über Mich",
-        videos: "Videos",
-        links: "Links",
-        aboutHeader: "Über Mich",
-        aboutText: "Yo! Ich bin Joey von JoeyTV Vlogs. Ich mache coole Videos, Livestreams und mehr! Auf dieser Website findest du alles, um dabei zu sein.",
-        videosHeader: "Meine Videos",
-        linksHeader: "Soziale Links"
-      },
-      pl: {
-        about: "O mnie",
-        videos: "Filmy",
-        links: "Linki",
-        aboutHeader: "O mnie",
-        aboutText: "Yo! Jestem Joey z JoeyTV Vlogs. Robię super filmy, streamy i nie tylko! Na tej stronie znajdziesz wszystko, by być na bieżąco.",
-        videosHeader: "Moje Filmy",
-        linksHeader: "Linki Społecznościowe"
-      },
-      ru: {
-        about: "Обо мне",
-        videos: "Видео",
-        links: "Ссылки",
-        aboutHeader: "Обо мне",
-        aboutText: "Йо! Я Джои из JoeyTV Vlogs. Я делаю крутые видео, стримы и многое другое! Здесь ты найдешь всё, чтобы быть со мной.",
-        videosHeader: "Мои Видео",
-        linksHeader: "Социальные Ссылки"
-      },
-      ar: {
-        about: "عني",
-        videos: "الفيديوهات",
-        links: "روابط",
-        aboutHeader: "عني",
-        aboutText: "مرحبًا! أنا جوي من JoeyTV Vlogs. أقدّم مقاطع فيديو رائعة وبثوث مباشرة والمزيد! في هذا الموقع ستجد كل ما تحتاجه لمتابعة المحتوى.",
-        videosHeader: "فيديوهاتي",
-        linksHeader: "روابطي الاجتماعية"
-      },
-      eg: {
-        about: "عنّي (مصرية)",
-        videos: "فيديوهات",
-        links: "لينكات",
-        aboutHeader: "عنّي",
-        aboutText: "يا صاحبي! أنا جوي من JoeyTV Vlogs. بعمل فيديوهات رهيبة ولايفات وحاجات كتير! هنا هتلاقي كل حاجة تتابعني بيها.",
-        videosHeader: "فيديوهاتي",
-        linksHeader: "روابطي"
-      }
+      en: { about: "About Me", videos: "Videos", links: "Links", aboutHeader: "About Me", aboutText: "Yo! I’m Joey from JoeyTV Vlogs. I make awesome videos, livestreams and more! On this website you can find everything to follow my content.", videosHeader: "My Videos", linksHeader: "Social Links" },
+      nl: { about: "Over Mij", videos: "Video's", links: "Links", aboutHeader: "Over Mij", aboutText: "Yo! Ik ben Joey van JoeyTV Vlogs. Ik maak vette video's, streams en nog veel meer! Hier op mijn website vind je alles wat je nodig hebt om mee te doen met mijn content.", videosHeader: "Mijn Video's", linksHeader: "Sociale Links" },
+      de: { about: "Über Mich", videos: "Videos", links: "Links", aboutHeader: "Über Mich", aboutText: "Yo! Ich bin Joey von JoeyTV Vlogs. Ich mache coole Videos, Livestreams und mehr! Auf dieser Website findest du alles, um dabei zu sein.", videosHeader: "Meine Videos", linksHeader: "Soziale Links" },
+      pl: { about: "O mnie", videos: "Filmy", links: "Linki", aboutHeader: "O mnie", aboutText: "Yo! Jestem Joey z JoeyTV Vlogs. Robię super filmy, streamy i nie tylko! Na tej stronie znajdziesz wszystko, by być na bieżąco.", videosHeader: "Moje Filmy", linksHeader: "Linki Społecznościowe" },
+      ru: { about: "Обо мне", videos: "Видео", links: "Ссылки", aboutHeader: "Обо мне", aboutText: "Йо! Я Джои из JoeyTV Vlogs. Я делаю крутые видео, стримы и многое другое! Здесь ты найдешь всё, чтобы быть со мной.", videosHeader: "Мои Видео", linksHeader: "Социальные Ссылки" },
+      ar: { about: "عني", videos: "الفيديوهات", links: "روابط", aboutHeader: "عني", aboutText: "مرحبًا! أنا جوي من JoeyTV Vlogs. أقدّم مقاطع فيديو رائعة وبثوث مباشرة والمزيد! في هذا الموقع ستجد كل ما تحتاجه لمتابعة المحتوى.", videosHeader: "فيديوهاتي", linksHeader: "روابطي الاجتماعية" },
+      eg: { about: "عنّي (مصرية)", videos: "فيديوهات", links: "لينكات", aboutHeader: "عنّي", aboutText: "يا صاحبي! أنا جوي من JoeyTV Vlogs. بعمل فيديوهات رهيبة ولايفات وحاجات كتير! هنا هتلاقي كل حاجة تتابعني بيها.", videosHeader: "فيديوهاتي", linksHeader: "روابطي" }
     };
 
     const languageSwitcher = document.getElementById('languageSwitcher');
+
+    // Load saved language
+    const savedLang = localStorage.getItem('language') || 'en';
+    languageSwitcher.value = savedLang;
+    changeLanguage(savedLang);
+
     languageSwitcher.addEventListener('change', (e) => {
       const lang = e.target.value;
+      localStorage.setItem('language', lang);
+      changeLanguage(lang);
+    });
+
+    function changeLanguage(lang) {
       document.querySelectorAll('[data-key]').forEach(el => {
         const key = el.getAttribute('data-key');
         el.textContent = translations[lang][key];
       });
-    });
+    }
   </script>
 </body>
 </html>
