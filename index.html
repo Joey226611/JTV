@@ -1,183 +1,362 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JoeyTV Vlogs</title>
-  <link rel="icon" href="YTLogo" type="image/png" />
+  <link rel="icon" href="YTLogo.jpg" type="image/jpeg" />
+  <meta name="color-scheme" content="dark" />
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Arial', sans-serif;
+    :root{
+      --bg:#0b0b0f;         /* deep space */
+      --bg-2:#101018;       /* card surface */
+      --fg:#f5f6f8;         /* text */
+      --muted:#9aa0a6;      /* secondary text */
+      --accent:#ff2a2a;     /* Joey red */
+      --accent-2:#d61f5a;   /* pinkish */
+      --ring: 0 0 0 .15rem color-mix(in hsl, var(--accent) 35%, transparent);
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.03);
     }
 
-    body {
-      background-color: #0d0d0d;
-      color: #ffffff;
-      scroll-behavior: smooth;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      color:var(--fg);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(255,42,42,.10), transparent 60%),
+        radial-gradient(900px 600px at 100% 0%, rgba(214,31,90,.12), transparent 55%),
+        linear-gradient(180deg, #0a0a0e 0%, var(--bg) 40% 100%);
+      overflow-x:hidden;
     }
 
-    header {
-      background-color: #1a1a1a;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
+    /* HEADER */
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(16,16,24,.85), rgba(16,16,24,.55));
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
+    .bar{max-width:1100px;margin:auto;display:flex;align-items:center;gap:18px;padding:14px 18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{height:42px;width:42px;border-radius:10px;box-shadow:var(--shadow)}
+    .title{font-weight:700;letter-spacing:.3px}
 
-    .logo {
-      display: flex;
-      align-items: center;
-    }
+    nav{margin-left:auto;display:flex;align-items:center;gap:6px}
+    .tab{position:relative;padding:10px 14px;border-radius:14px; color:var(--fg); text-decoration:none;opacity:.9}
+    .tab.active{opacity:1}
+    .tab::after{content:"";position:absolute;left:14px;right:14px;bottom:6px;height:2px;border-radius:2px;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:transform .35s ease}
+    .tab.active::after{transform:scaleX(1)}
 
-    .logo img {
-      height: 50px;
-      margin-right: 15px;
-    }
+    .lang{margin-left:10px}
+    select{appearance:none;background:var(--bg-2);color:var(--fg);border:1px solid rgba(255,255,255,.08);padding:10px 12px;border-radius:12px;outline:none}
+    select:focus{box-shadow:var(--ring);border-color:color-mix(in hsl, var(--accent) 55%, #fff 0%)}
 
-    nav {
-      display: flex;
-      align-items: center;
-    }
+    /* MAIN APP SHELL */
+    .container{max-width:1100px;margin:26px auto;padding:0 18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .page{min-height:58vh;padding:28px}
 
-    nav a {
-      margin: 0 15px;
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 1.1em;
-    }
+    h1{font-size:2.1rem;margin:0 0 10px}
+    h2{font-size:1.4rem;margin:0 0 14px;color:color-mix(in hsl, var(--fg) 85%, var(--accent) 15%)}
+    p{color:var(--fg);opacity:.9;line-height:1.65}
+    .muted{color:var(--muted)}
 
-    nav a:hover {
-      color: #ff0000;
-    }
+    .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.10);text-decoration:none;color:var(--fg);transition:transform .18s ease, background .18s ease}
+    .chip:hover{transform:translateY(-1px);background:rgba(255,42,42,.08)}
 
-    .language-selector {
-      margin-left: 15px;
-    }
+    iframe{width:100%;aspect-ratio:16/9;border:none;border-radius:16px}
 
-    select {
-      background-color: #1a1a1a;
-      color: #ffffff;
-      border: 1px solid #ff0000;
-      padding: 5px 10px;
-      border-radius: 5px;
-    }
+    /* PAGE TRANSITIONS (swipe) */
+    .view{position:relative;overflow:hidden}
+    .panel{position:relative}
+    .panel.enter, .panel.leave{position:absolute;inset:0}
+    .panel.enter{animation:slideIn .45s cubic-bezier(.2,.7,.2,1)}
+    .panel.leave{animation:slideOut .45s cubic-bezier(.2,.7,.2,1)}
+    .panel.fade-enter{animation:fadeIn .45s ease}
+    .panel.fade-leave{animation:fadeOut .35s ease}
 
-    main {
-      padding: 40px 20px;
-      max-width: 1000px;
-      margin: auto;
-    }
+    @keyframes slideIn{from{transform:translateX(var(--dir, 20%));opacity:.0}to{transform:translateX(0);opacity:1}}
+    @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(calc(var(--dir, 20%) * -1));opacity:0}}
+    @keyframes fadeIn{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:blur(0)}}
+    @keyframes fadeOut{from{opacity:1;filter:none}to{opacity:0;filter:blur(6px)}}
 
-    section {
-      margin-bottom: 50px;
-    }
-
-    h1, h2 {
-      color: #ff0000;
-      margin-bottom: 20px;
-    }
-
-    .links a {
-      display: inline-block;
-      margin: 10px;
-      padding: 10px 15px;
-      border: 1px solid #ff0000;
-      border-radius: 5px;
-      color: #ffffff;
-      text-decoration: none;
-    }
-
-    .links a:hover {
-      background-color: #ff0000;
-    }
-
-    iframe {
-      width: 100%;
-      height: 400px;
-      border: none;
+    /* RESPONSIVE */
+    @media (max-width:720px){
+      .title{display:none}
+      nav{gap:2px}
+      .tab{padding:10px 12px}
+      .page{padding:20px}
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">
-      <img src="YTLogo" alt="JoeyTV Logo" />
-      <h1>JoeyTV Vlogs</h1>
-    </div>
-    <nav>
-      <a href="#about" data-key="about">About Me</a>
-      <a href="#videos" data-key="videos">Videos</a>
-      <a href="#links" data-key="links">Links</a>
-      <div class="language-selector">
-        <select id="languageSwitcher">
-          <option value="en">English</option>
-          <option value="nl">Nederlands</option>
-          <option value="de">Deutsch</option>
-          <option value="pl">Polski</option>
-          <option value="ru">Русский</option>
-          <option value="ar">العربية</option>
-          <option value="eg">Egyptisch</option>
-        </select>
+    <div class="bar">
+      <div class="brand">
+        <img src="YTLogo.jpg" alt="JoeyTV Logo"/>
+        <div class="title">JoeyTV Vlogs</div>
       </div>
-    </nav>
+      <nav>
+        <a class="tab" href="#about" data-key="about">About Me</a>
+        <a class="tab" href="#videos" data-key="videos">Videos</a>
+        <a class="tab" href="#links" data-key="links">Links</a>
+        <div class="lang">
+          <select id="languageSwitcher" aria-label="Language">
+            <option value="en">English</option>
+            <option value="nl">Nederlands</option>
+            <option value="de">Deutsch</option>
+            <option value="pl">Polski</option>
+            <option value="ru">Русский</option>
+            <option value="ar">العربية</option>
+            <option value="eg">Egyptisch</option>
+          </select>
+        </div>
+      </nav>
+    </div>
   </header>
 
-  <main>
-    <section id="about">
-      <h2 data-key="aboutHeader">About Me</h2>
-      <p data-key="aboutText">Yo! I’m Joey from JoeyTV Vlogs. I make awesome videos, livestreams and more! On this website you can find everything to follow my content.</p>
-    </section>
-
-    <section id="videos">
-      <h2 data-key="videosHeader">My Videos</h2>
-      <iframe src="https://www.youtube.com/embed?listType=user_uploads&list=joeytvvlogs3767"></iframe>
-    </section>
-
-    <section id="links">
-      <h2 data-key="linksHeader">Social Links</h2>
-      <div class="links">
-        <a href="https://www.twitch.tv/joey_tv_vlogs" target="_blank">Twitch</a>
-        <a href="https://discord.gg/4JV9CQFsXj" target="_blank">Discord</a>
-        <a href="https://www.youtube.com/@joeytvvlogs3767" target="_blank">YouTube</a>
-        <a href="https://www.tiktok.com/@joeytvvlogs" target="_blank">TikTok</a>
-      </div>
+  <main class="container">
+    <section class="card view" id="appView">
+      <!-- dynamic panels get injected here -->
     </section>
   </main>
 
+  <!-- TEMPLATES (one file SPA) -->
+  <template id="tpl-about">
+    <div class="panel page">
+      <h1 data-key="aboutHeader">About Me</h1>
+      <p data-key="aboutText">Yo! I’m Joey from JoeyTV Vlogs. I make awesome videos, livestreams and more! On this website you can find everything to follow my content.</p>
+      <p class="muted" data-key="aboutSub">Welcome to the official hub of my channel. Scroll around, hit the tabs and enjoy the animations 😉</p>
+    </div>
+  </template>
+
+  <template id="tpl-videos">
+    <div class="panel page">
+      <h1 data-key="videosHeader">My Videos</h1>
+      <p class="muted" data-key="videosSub">Latest uploads from my YouTube channel.</p>
+      <iframe src="https://www.youtube.com/embed?listType=user_uploads&list=joeytvvlogs3767" allowfullscreen loading="lazy"></iframe>
+    </div>
+  </template>
+
+  <template id="tpl-links">
+    <div class="panel page">
+      <h1 data-key="linksHeader">Social Links</h1>
+      <p class="muted" data-key="linksSub">Follow me everywhere — stay updated on streams and new videos.</p>
+      <div class="links">
+        <a class="chip" href="https://www.twitch.tv/joey_tv_vlogs" target="_blank" rel="noopener">Twitch</a>
+        <a class="chip" href="https://discord.gg/4JV9CQFsXj" target="_blank" rel="noopener">Discord</a>
+        <a class="chip" href="https://www.youtube.com/@joeytvvlogs3767" target="_blank" rel="noopener">YouTube</a>
+        <a class="chip" href="https://www.tiktok.com/@joeytvvlogs" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+  </template>
+
   <script>
+    // ---- i18n content ----
     const translations = {
-      en: { about: "About Me", videos: "Videos", links: "Links", aboutHeader: "About Me", aboutText: "Yo! I’m Joey from JoeyTV Vlogs. I make awesome videos, livestreams and more! On this website you can find everything to follow my content.", videosHeader: "My Videos", linksHeader: "Social Links" },
-      nl: { about: "Over Mij", videos: "Video's", links: "Links", aboutHeader: "Over Mij", aboutText: "Yo! Ik ben Joey van JoeyTV Vlogs. Ik maak vette video's, streams en nog veel meer! Hier op mijn website vind je alles wat je nodig hebt om mee te doen met mijn content.", videosHeader: "Mijn Video's", linksHeader: "Sociale Links" },
-      de: { about: "Über Mich", videos: "Videos", links: "Links", aboutHeader: "Über Mich", aboutText: "Yo! Ich bin Joey von JoeyTV Vlogs. Ich mache coole Videos, Livestreams und mehr! Auf dieser Website findest du alles, um dabei zu sein.", videosHeader: "Meine Videos", linksHeader: "Soziale Links" },
-      pl: { about: "O mnie", videos: "Filmy", links: "Linki", aboutHeader: "O mnie", aboutText: "Yo! Jestem Joey z JoeyTV Vlogs. Robię super filmy, streamy i nie tylko! Na tej stronie znajdziesz wszystko, by być na bieżąco.", videosHeader: "Moje Filmy", linksHeader: "Linki Społecznościowe" },
-      ru: { about: "Обо мне", videos: "Видео", links: "Ссылки", aboutHeader: "Обо мне", aboutText: "Йо! Я Джои из JoeyTV Vlogs. Я делаю крутые видео, стримы и многое другое! Здесь ты найдешь всё, чтобы быть со мной.", videosHeader: "Мои Видео", linksHeader: "Социальные Ссылки" },
-      ar: { about: "عني", videos: "الفيديوهات", links: "روابط", aboutHeader: "عني", aboutText: "مرحبًا! أنا جوي من JoeyTV Vlogs. أقدّم مقاطع فيديو رائعة وبثوث مباشرة والمزيد! في هذا الموقع ستجد كل ما تحتاجه لمتابعة المحتوى.", videosHeader: "فيديوهاتي", linksHeader: "روابطي الاجتماعية" },
-      eg: { about: "عنّي (مصرية)", videos: "فيديوهات", links: "لينكات", aboutHeader: "عنّي", aboutText: "يا صاحبي! أنا جوي من JoeyTV Vlogs. بعمل فيديوهات رهيبة ولايفات وحاجات كتير! هنا هتلاقي كل حاجة تتابعني بيها.", videosHeader: "فيديوهاتي", linksHeader: "روابطي" }
+      en:{
+        about:"About Me", videos:"Videos", links:"Links",
+        aboutHeader:"About Me",
+        aboutText:"Yo! I’m Joey from JoeyTV Vlogs. I make awesome videos, livestreams and more! On this website you can find everything to follow my content.",
+        aboutSub:"Welcome to the official hub of my channel. Scroll around, hit the tabs and enjoy the animations 😉",
+        videosHeader:"My Videos",
+        videosSub:"Latest uploads from my YouTube channel.",
+        linksHeader:"Social Links",
+        linksSub:"Follow me everywhere — stay updated on streams and new videos.",
+        docTitle:{about:"About • JoeyTV Vlogs", videos:"Videos • JoeyTV Vlogs", links:"Links • JoeyTV Vlogs"}
+      },
+      nl:{
+        about:"Over Mij", videos:"Video's", links:"Links",
+        aboutHeader:"Over Mij",
+        aboutText:"Yo! Ik ben Joey van JoeyTV Vlogs. Ik maak vette video's, streams en nog veel meer! Hier vind je alles om mijn content te volgen.",
+        aboutSub:"Welkom op de officiële hub van mijn kanaal. Check de tabs en enjoy de animaties 😉",
+        videosHeader:"Mijn Video's",
+        videosSub:"Laatste uploads van mijn YouTube-kanaal.",
+        linksHeader:"Sociale Links",
+        linksSub:"Volg me overal — zo mis je nooit een stream of video.",
+        docTitle:{about:"Over Mij • JoeyTV Vlogs", videos:"Video's • JoeyTV Vlogs", links:"Links • JoeyTV Vlogs"}
+      },
+      de:{
+        about:"Über Mich", videos:"Videos", links:"Links",
+        aboutHeader:"Über Mich",
+        aboutText:"Yo! Ich bin Joey von JoeyTV Vlogs. Ich mache coole Videos, Livestreams und mehr! Hier findest du alles, um am Start zu sein.",
+        aboutSub:"Willkommen im offiziellen Hub meines Kanals. Tabs klicken & die Animationen genießen 😉",
+        videosHeader:"Meine Videos",
+        videosSub:"Neueste Uploads von meinem YouTube-Kanal.",
+        linksHeader:"Soziale Links",
+        linksSub:"Folge mir überall – bleib auf dem Laufenden.",
+        docTitle:{about:"Über Mich • JoeyTV Vlogs", videos:"Videos • JoeyTV Vlogs", links:"Links • JoeyTV Vlogs"}
+      },
+      pl:{
+        about:"O mnie", videos:"Filmy", links:"Linki",
+        aboutHeader:"O mnie",
+        aboutText:"Yo! Jestem Joey z JoeyTV Vlogs. Robię super filmy, streamy i więcej! Tutaj znajdziesz wszystko, by być na bieżąco.",
+        aboutSub:"Witaj w oficjalnym hubie mojego kanału. Klikaj karty i ciesz się animacjami 😉",
+        videosHeader:"Moje Filmy",
+        videosSub:"Najnowsze filmy z mojego kanału YouTube.",
+        linksHeader:"Linki Społecznościowe",
+        linksSub:"Obserwuj mnie wszędzie — bądź na bieżąco ze streamami i filmami.",
+        docTitle:{about:"O mnie • JoeyTV Vlogs", videos:"Filmy • JoeyTV Vlogs", links:"Linki • JoeyTV Vlogs"}
+      },
+      ru:{
+        about:"Обо мне", videos:"Видео", links:"Ссылки",
+        aboutHeader:"Обо мне",
+        aboutText:"Йо! Я Джои из JoeyTV Vlogs. Делаю крутые видео, стримы и многое другое! Здесь всё, чтобы быть со мной.",
+        aboutSub:"Добро пожаловать в официальный хаб моего канала. Кликайте по вкладкам и наслаждайтесь анимациями 😉",
+        videosHeader:"Мои Видео",
+        videosSub:"Последние загрузки с моего YouTube-канала.",
+        linksHeader:"Социальные Ссылки",
+        linksSub:"Подписывайтесь везде — не пропускайте стримы и новые ролики.",
+        docTitle:{about:"Обо мне • JoeyTV Vlogs", videos:"Видео • JoeyTV Vlogs", links:"Ссылки • JoeyTV Vlogs"}
+      },
+      ar:{
+        about:"عني", videos:"الفيديوهات", links:"روابط",
+        aboutHeader:"عني",
+        aboutText:"مرحبًا! أنا جوي من JoeyTV Vlogs. أقدّم مقاطع فيديو رائعة وبثوث مباشرة والمزيد! هنا ستجد كل ما تحتاجه لمتابعة المحتوى.",
+        aboutSub:"أهلاً بك في موقع قناتي الرسمي. جرّب التبويبات واستمتع بالحركات 😉",
+        videosHeader:"فيديوهاتي",
+        videosSub:"أحدث المقاطع من قناتي على يوتيوب.",
+        linksHeader:"روابطي الاجتماعية",
+        linksSub:"تابعني في كل مكان — ولا تفوّت أي بث أو فيديو.",
+        docTitle:{about:"عني • JoeyTV Vlogs", videos:"فيديوهات • JoeyTV Vlogs", links:"روابط • JoeyTV Vlogs"}
+      },
+      eg:{
+        about:"عنّي (مصرية)", videos:"فيديوهات", links:"لينكات",
+        aboutHeader:"عنّي",
+        aboutText:"يا صاحبي! أنا جوي من JoeyTV Vlogs. بعمل فيديوهات رهيبة ولايفات وحاجات كتير! هنا هتلاقي كل حاجة تتابعني بيها.",
+        aboutSub:"أهلاً بيك في الهَب الرسمي للقناة. جرّب التابات واستمتع بالأنيميشن 😉",
+        videosHeader:"فيديوهاتي",
+        videosSub:"أجدد فيديوهات من قناتي على يوتيوب.",
+        linksHeader:"روابطي",
+        linksSub:"تابعني في كل حتة — عشان مايفوتكش حاجة.",
+        docTitle:{about:"عنّي • JoeyTV Vlogs", videos:"فيديوهات • JoeyTV Vlogs", links:"لينكات • JoeyTV Vlogs"}
+      }
     };
 
-    const languageSwitcher = document.getElementById('languageSwitcher');
+    // ---- Router & App ----
+    const routes = ["about","videos","links"];
+    const appView = document.getElementById('appView');
+    const navTabs = Array.from(document.querySelectorAll('.tab'));
 
-    // Load saved language
+    // Language state
+    const langSelect = document.getElementById('languageSwitcher');
     const savedLang = localStorage.getItem('language') || 'en';
-    languageSwitcher.value = savedLang;
-    changeLanguage(savedLang);
+    langSelect.value = savedLang;
+    applyLanguage(savedLang);
 
-    languageSwitcher.addEventListener('change', (e) => {
+    // Respect RTL for Arabic dialects
+    applyDir(savedLang);
+
+    window.addEventListener('hashchange', () => navigate(location.hash.slice(1)));
+    window.addEventListener('load', () => navigate(location.hash.slice(1) || 'about', true));
+
+    langSelect.addEventListener('change', e => {
       const lang = e.target.value;
       localStorage.setItem('language', lang);
-      changeLanguage(lang);
+      applyLanguage(lang);
+      applyDir(lang);
+      // also re-render current route to update localized headings
+      navigate(getRoute(), true, true);
     });
 
-    function changeLanguage(lang) {
-      document.querySelectorAll('[data-key]').forEach(el => {
+    function getRoute(){
+      const r = location.hash.replace('#','');
+      return routes.includes(r) ? r : 'about';
+    }
+
+    function setActiveTab(route){
+      navTabs.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + route));
+      // update nav labels by i18n keys
+      document.querySelectorAll('[data-key]').forEach(el=>{
         const key = el.getAttribute('data-key');
-        el.textContent = translations[lang][key];
+        const pack = translations[langSelect.value];
+        if(pack && pack[key]) el.textContent = pack[key];
       });
     }
+
+    function navigate(to, onLoad=false, reRender=false){
+      const current = appView.querySelector('.panel');
+      const from = current ? current.dataset.route : null;
+      const toRoute = routes.includes(to) ? to : 'about';
+
+      if(!onLoad && location.hash.slice(1) !== toRoute){
+        // ensure we always show #route in URL
+        location.hash = '#' + toRoute;
+        return; // wait for hashchange
+      }
+
+      // set document title localized
+      const pack = translations[langSelect.value];
+      if(pack && pack.docTitle && pack.docTitle[toRoute]) document.title = pack.docTitle[toRoute];
+
+      // create new panel from template
+      const tpl = document.getElementById('tpl-' + toRoute);
+      const newPanel = tpl.content.firstElementChild.cloneNode(true);
+      newPanel.dataset.route = toRoute;
+
+      // direction for swipe (left/right) based on index
+      const dir = (from && routes.indexOf(toRoute) < routes.indexOf(from)) ? '-20%' : '20%';
+      newPanel.style.setProperty('--dir', dir);
+      newPanel.classList.add('enter');
+
+      // localize inner texts of new panel
+      localizeNode(newPanel);
+
+      // mount
+      if(current){
+        // animate old panel out
+        current.style.setProperty('--dir', dir);
+        current.classList.add('leave');
+        appView.appendChild(newPanel);
+        // remove old after animation
+        setTimeout(()=>{ current.remove(); }, 450);
+      } else {
+        appView.appendChild(newPanel);
+      }
+
+      setActiveTab(toRoute);
+    }
+
+    function localizeNode(root){
+      const pack = translations[langSelect.value];
+      root.querySelectorAll('[data-key]').forEach(el=>{
+        const key = el.getAttribute('data-key');
+        if(pack && pack[key]) el.textContent = pack[key];
+      });
+    }
+
+    function applyLanguage(lang){
+      // nav + any static labels
+      document.querySelectorAll('[data-key]').forEach(el=>{
+        const key = el.getAttribute('data-key');
+        const pack = translations[lang];
+        if(pack && pack[key]) el.textContent = pack[key];
+      });
+    }
+
+    function applyDir(lang){
+      const rtl = (lang === 'ar' || lang === 'eg');
+      document.documentElement.lang = lang;
+      document.documentElement.dir = rtl ? 'rtl' : 'ltr';
+    }
+
+    // Basic swipe gesture to switch tabs on mobile
+    let startX = 0, isTouch=false;
+    appView.addEventListener('touchstart', (e)=>{isTouch=true; startX = e.touches[0].clientX;});
+    appView.addEventListener('touchend', (e)=>{
+      if(!isTouch) return; isTouch=false;
+      const endX = e.changedTouches[0].clientX;
+      const dx = endX - startX;
+      if(Math.abs(dx) < 50) return; // ignore small swipes
+      const current = getRoute();
+      const idx = routes.indexOf(current);
+      const next = dx < 0 ? Math.min(idx+1, routes.length-1) : Math.max(idx-1, 0);
+      location.hash = '#' + routes[next];
+    });
   </script>
 </body>
 </html>
